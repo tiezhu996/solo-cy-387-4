@@ -5,12 +5,20 @@ import { getMetaOptions } from '../api/meta';
 export function useMetaOptions() {
   const houseStatus = ref<string[]>([]);
   const repairTypes = ref<string[]>([]);
+  const loadError = ref('');
 
-  onMounted(async () => {
-    const meta = await getMetaOptions();
-    houseStatus.value = meta.houseStatus;
-    repairTypes.value = meta.repairTypes;
-  });
+  async function load() {
+    loadError.value = '';
+    try {
+      const meta = await getMetaOptions();
+      houseStatus.value = meta.houseStatus;
+      repairTypes.value = meta.repairTypes;
+    } catch {
+      loadError.value = '报修类型加载失败，请重试';
+    }
+  }
 
-  return { houseStatus, repairTypes };
+  onMounted(load);
+
+  return { houseStatus, repairTypes, loadError, reload: load };
 }

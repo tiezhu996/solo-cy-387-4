@@ -7,12 +7,20 @@ import { DEFAULT_PROPERTY_FILTER, filterProperties, type PropertyFilter } from '
 export function usePropertyQuery() {
   const properties = ref<PropertyItem[]>([]);
   const filter = reactive<PropertyFilter>({ ...DEFAULT_PROPERTY_FILTER });
+  const loadError = ref('');
 
-  onMounted(async () => {
-    properties.value = await getProperties();
-  });
+  async function load() {
+    loadError.value = '';
+    try {
+      properties.value = await getProperties();
+    } catch {
+      loadError.value = '房源加载失败，请重试';
+    }
+  }
+
+  onMounted(load);
 
   const filtered = computed(() => filterProperties(properties.value, filter));
 
-  return { properties, filter, filtered };
+  return { properties, filter, filtered, loadError, reload: load };
 }

@@ -16,6 +16,10 @@
       </el-select>
     </section>
 
+    <el-alert v-if="propertyError" class="load-error" type="error" :title="propertyError" show-icon :closable="false">
+      <el-button size="small" @click="reloadProperties">重试</el-button>
+    </el-alert>
+
     <section v-if="mode === '地图视图'" class="map-panel">高德地图区域：按经纬度展示房源点位，当前示例加载 {{ filtered.length }} 套房源。</section>
     <section class="grid">
       <PropertyCard v-for="item in filtered" :key="item.id" :item="item" />
@@ -23,12 +27,15 @@
 
     <section class="repair">
       <h2>物业报修</h2>
-      <el-select v-model="faultType">
+      <el-select v-model="faultType" :disabled="repairTypes.length === 0">
         <el-option v-for="type in repairTypes" :key="type" :label="type" :value="type" />
       </el-select>
       <el-input v-model="description" placeholder="描述故障情况" />
-      <el-button type="success" @click="submitRepair">提交工单</el-button>
+      <el-button type="success" :disabled="!faultType" @click="submitRepair">提交工单</el-button>
       <span>{{ notice }}</span>
+      <el-alert v-if="metaError" class="meta-error" type="error" :title="metaError" show-icon :closable="false">
+        <el-button size="small" @click="reloadMeta">重试</el-button>
+      </el-alert>
     </section>
   </main>
 </template>
@@ -41,8 +48,8 @@ import { useMetaOptions } from '../composables/useMetaOptions';
 import { usePropertyQuery } from '../composables/usePropertyQuery';
 import { LAYOUT_OPTIONS } from '../utils/propertyFilter';
 
-const { filter, filtered } = usePropertyQuery();
-const { repairTypes } = useMetaOptions();
+const { filter, filtered, loadError: propertyError, reload: reloadProperties } = usePropertyQuery();
+const { repairTypes, loadError: metaError, reload: reloadMeta } = useMetaOptions();
 
 const mode = ref('列表视图');
 const faultType = ref('');

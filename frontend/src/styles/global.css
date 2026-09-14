@@ -9,3 +9,5 @@ body { margin: 0; font-family: Inter, system-ui, sans-serif; background: #f6f8fb
 .full { width: 100%; }
 .map-panel, .repair { margin: 20px 0; padding: 18px; border: 1px solid #d7dee8; background: white; border-radius: 8px; }
 .repair { display: grid; grid-template-columns: 120px 1fr 120px auto; gap: 12px; align-items: center; }
+.load-error { margin: 20px 0; }
+.meta-error { grid-column: 1 / -1; }
