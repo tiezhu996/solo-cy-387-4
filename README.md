@@ -34,6 +34,15 @@ cd backend && python -m venv venv && source venv/bin/activate && pip install -r 
 cd frontend && npm install && npm run dev
 ```
 
+## 运行测试
+
+```bash
+cd backend && pip install -r requirements.txt && python manage.py test
+cd frontend && npm ci && npm run test
+```
+
+后端测试覆盖房源接口字段映射与 `/api/meta/` 枚举接口；前端测试覆盖房源筛选规则（区域、租金上限、户型、无匹配）与字段映射。
+
 ## 技术栈
 
 | 模块 | 技术 |
