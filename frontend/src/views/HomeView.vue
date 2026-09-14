@@ -9,13 +9,10 @@
     </section>
 
     <section class="filters">
-      <el-input v-model="region" placeholder="区域" />
-      <el-input-number v-model="maxRent" :min="1000" :step="500" />
-      <el-select v-model="layout" placeholder="户型">
-        <el-option label="全部" value="全部" />
-        <el-option label="一室一厅" value="一室一厅" />
-        <el-option label="两室一厅" value="两室一厅" />
-        <el-option label="三室两厅" value="三室两厅" />
+      <el-input v-model="filter.region" placeholder="区域" />
+      <el-input-number v-model="filter.maxRent" :min="1000" :step="500" />
+      <el-select v-model="filter.layout" placeholder="户型">
+        <el-option v-for="option in LAYOUT_OPTIONS" :key="option" :label="option" :value="option" />
       </el-select>
     </section>
 
@@ -27,11 +24,7 @@
     <section class="repair">
       <h2>物业报修</h2>
       <el-select v-model="faultType">
-        <el-option label="水电" value="水电" />
-        <el-option label="门锁" value="门锁" />
-        <el-option label="管道" value="管道" />
-        <el-option label="家电" value="家电" />
-        <el-option label="其他" value="其他" />
+        <el-option v-for="type in repairTypes" :key="type" :label="type" :value="type" />
       </el-select>
       <el-input v-model="description" placeholder="描述故障情况" />
       <el-button type="success" @click="submitRepair">提交工单</el-button>
@@ -41,30 +34,25 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { ref, watch } from 'vue';
 import PropertyCard from '../components/PropertyCard.vue';
-import { createRepair, getProperties } from '../api/client';
-import type { PropertyItem } from '../types/domain';
+import { createRepair } from '../api/repair';
+import { useMetaOptions } from '../composables/useMetaOptions';
+import { usePropertyQuery } from '../composables/usePropertyQuery';
+import { LAYOUT_OPTIONS } from '../utils/propertyFilter';
 
-const properties = ref<PropertyItem[]>([]);
+const { filter, filtered } = usePropertyQuery();
+const { repairTypes } = useMetaOptions();
+
 const mode = ref('列表视图');
-const region = ref('');
-const maxRent = ref(7000);
-const layout = ref('全部');
-const faultType = ref('水电');
+const faultType = ref('');
 const description = ref('');
 const notice = ref('等待提交');
 
-onMounted(async () => {
-  properties.value = await getProperties();
-});
-
-const filtered = computed(() => properties.value.filter((item) => {
-  const hitRegion = !region.value || item.region.includes(region.value);
-  const hitRent = item.rent <= maxRent.value;
-  const hitLayout = layout.value === '全部' || item.layout === layout.value;
-  return hitRegion && hitRent && hitLayout;
-}));
+// 报修类型默认选中第一项，与原默认值“水电”一致
+watch(repairTypes, (types) => {
+  if (!faultType.value && types.length > 0) faultType.value = types[0];
+}, { immediate: true });
 
 async function submitRepair() {
   const ticket = await createRepair({ faultType: faultType.value, description: description.value });

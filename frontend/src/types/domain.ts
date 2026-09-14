@@ -18,3 +18,8 @@ export interface RepairTicket {
   description: string;
   status: string;
 }
+
+export interface MetaOptions {
+  houseStatus: string[];
+  repairTypes: string[];
+}
